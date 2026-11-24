@@ -1,0 +1,64 @@
+!=======================================================================================
+!  Two-band model of Christensen et al., PRL 125, 247001 (2020), Eq. (3):
+!     H = H_0 - U sum_i (S^z_i)^2 ,  S^z_i = sum_ab c^dag_ia sigma^z_ab d_ib + h.c.
+!  Code: Prog/Hamiltonians/Hamiltonian_Hubbard_Sz_smod.F90
+!
+!  Lines marked  <-- SET  are the ones you normally change.
+!---------------------------------------------------------------------------------------
+&VAR_ham_name
+ham_name = "Hubbard_Sz"
+/
+
+&VAR_lattice
+L1           = 6            ! <-- SET  Length in direction a_1
+L2           = 6            ! <-- SET  Length in direction a_2
+Lattice_type = "Square"     ! Only "Square" is implemented
+Model        = "Hubbard_Sz" ! Value irrelevant
+/
+
+&VAR_Hubbard_Sz
+Ham_T      = 1.d0           ! Hopping t (energy unit)
+Ham_delta  = 0.4d0          ! Hopping anisotropy delta  (paper: 0.4 t)
+Ham_mu     = -2.d0          ! Band offset mu: eps_c ~ -mu, eps_d ~ +mu  (paper: -2 t)
+Ham_chem   = 0.d0           ! Extra global chemical potential, adds -Ham_chem * N
+Ham_U      = 1.d0           ! <-- SET  Interaction U in H_int = -U sum_i (S^z_i)^2
+Dtau       = 0.05d0         ! <-- SET  Imaginary-time step; Trotter error ~ Dtau^2
+Beta       = 5.d0           ! <-- SET  Inverse temperature (Ltrot = Beta/Dtau)
+Projector  = .F.            ! .T. = projective (T=0) algorithm
+Theta      = 10.d0          ! Projection length (only if Projector = .T.)
+Symm       = .T.            ! Symmetric Trotter decomposition
+N_part     = -1             ! Projector only: particles per spin, < 0 -> L1*L2
+/
+
+&VAR_QMC
+Nwrap                = 10   ! Stabilization interval (recompute G every Nwrap*Dtau)
+NSweep               = 200  ! <-- SET  Sweeps per bin
+NBin                 = 20   ! <-- SET  Number of bins (one bin = NSweep sweeps)
+Ltau                 = 0    ! 1 = also measure time-displaced correlations (slower)
+LOBS_ST              = 0    ! Start measurements at time slice LOBS_ST
+LOBS_EN              = 0    ! End measurements at time slice LOBS_EN
+CPU_MAX              = 0.0  ! Stop after CPU_MAX hours (0 = run all NBin bins)
+Propose_S0           = .F.
+Global_moves         = .F.
+N_Global             = 1
+Global_tau_moves     = .F.
+N_Global_tau         = 1
+Sequential           = .T.  ! Sequential single-field updates
+Nt_sequential_start  = 0
+Nt_sequential_end    = -1
+Langevin             = .F.
+Delta_t_Langevin_HMC = 0.1
+Max_Force            = 5.0
+HMC                  = .F.
+N_HMC_sweeps         = 1
+Leapfrog_steps       = 0
+Amplitude            = 1.d0
+/
+
+&VAR_errors                 ! Used by the analysis program ana.out
+n_skip        = 2           ! <-- SET  Bins discarded for thermalization
+N_rebin       = 1           ! Rebinning factor (increase if bins are correlated)
+N_Cov         = 0
+Extended_Zone = .F.
+N_BZ_Zones    = 1
+/

@@ -1,0 +1,63 @@
+!=======================================================================================
+!  2x2 TEST of Hubbard_Sz against exact diagonalization (Infos/Test_results_Hubbard_Sz.tex).
+!  Run:  ./run.sh test_2x2 parameters_test_2x2
+!  Expected (ED, beta=2, U=1, Ham_chem=0.3):  Ener = -31.80783, Part = 8.27457,
+!  N_c = 2.38350, N_d = 5.89106  (N_c may be ~2.5 sigma off at Dtau=0.05: Trotter).
+!---------------------------------------------------------------------------------------
+&VAR_ham_name
+ham_name = "Hubbard_Sz"
+/
+
+&VAR_lattice
+L1           = 2            ! 2x2 test lattice
+L2           = 2            ! 2x2 test lattice
+Lattice_type = "Square"     ! Only "Square" is implemented
+Model        = "Hubbard_Sz" ! Value irrelevant
+/
+
+&VAR_Hubbard_Sz
+Ham_T      = 1.d0           ! Hopping t (energy unit)
+Ham_delta  = 0.4d0          ! Hopping anisotropy delta  (paper: 0.4 t)
+Ham_mu     = -2.d0          ! Band offset mu: eps_c ~ -mu, eps_d ~ +mu  (paper: -2 t)
+Ham_chem   = 0.3d0          ! Extra global chemical potential, adds -Ham_chem * N
+Ham_U      = 1.d0           ! Test value: Interaction U in H_int = -U sum_i (S^z_i)^2
+Dtau       = 0.05d0         ! Test value: Imaginary-time step; Trotter error ~ Dtau^2
+Beta       = 2.d0           ! Test value
+Projector  = .F.            ! .T. = projective (T=0) algorithm
+Theta      = 10.d0          ! Projection length (only if Projector = .T.)
+Symm       = .T.            ! Symmetric Trotter decomposition
+N_part     = -1             ! Projector only: particles per spin, < 0 -> L1*L2
+/
+
+&VAR_QMC
+Nwrap                = 10   ! Stabilization interval (recompute G every Nwrap*Dtau)
+NSweep               = 200  ! Sweeps per bin
+NBin                 = 40   ! Test value
+Ltau                 = 0    ! 1 = also measure time-displaced correlations (slower)
+LOBS_ST              = 0    ! Start measurements at time slice LOBS_ST
+LOBS_EN              = 0    ! End measurements at time slice LOBS_EN
+CPU_MAX              = 0.0  ! Stop after CPU_MAX hours (0 = run all NBin bins)
+Propose_S0           = .F.
+Global_moves         = .F.
+N_Global             = 1
+Global_tau_moves     = .F.
+N_Global_tau         = 1
+Sequential           = .T.  ! Sequential single-field updates
+Nt_sequential_start  = 0
+Nt_sequential_end    = -1
+Langevin             = .F.
+Delta_t_Langevin_HMC = 0.1
+Max_Force            = 5.0
+HMC                  = .F.
+N_HMC_sweeps         = 1
+Leapfrog_steps       = 0
+Amplitude            = 1.d0
+/
+
+&VAR_errors                 ! Used by the analysis program ana.out
+n_skip        = 2           ! Bins discarded for thermalization
+N_rebin       = 1           ! Rebinning factor (increase if bins are correlated)
+N_Cov         = 0
+Extended_Zone = .F.
+N_BZ_Zones    = 1
+/
