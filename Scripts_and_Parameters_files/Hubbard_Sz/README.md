@@ -7,6 +7,9 @@ Two-band model of Christensen *et al.*, PRL **125**, 247001 (2020), Eq. (3):
 Code: `Prog/Hamiltonians/Hamiltonian_Hubbard_Sz_smod.F90`.
 Validation against ED: `Infos/Test_results_Hubbard_Sz.tex` (project folder).
 
+Full manual (installation, data layout, analysis): `Infos_SZ/ALF_SZ_Manual.pdf`.
+XY and Heisenberg models: `../TwoBand_Spin/` (same `run.sh`).
+
 ## Files
 
 | file | purpose |
@@ -16,6 +19,7 @@ Validation against ED: `Infos/Test_results_Hubbard_Sz.tex` (project folder).
 | `seeds` | random seeds (one line per MPI rank) |
 | `run.sh` | sets up a run directory, runs ALF, runs the analysis, prints a summary |
 | `out_to_in.sh` | used by `run.sh` to continue a run from its last configuration |
+| `analyze.py` | summary table, plots (`--plot`) and Δτ² extrapolation (`--dtau`); see `Infos_SZ/ALF_SZ_Manual.pdf` |
 
 ## 0. Build ALF (once, or after changing Fortran code)
 

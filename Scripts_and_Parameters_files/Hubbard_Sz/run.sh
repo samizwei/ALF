@@ -57,16 +57,25 @@ cp "$PARAMS" parameters
 echo "Running ALF ... (log: $(pwd)/run.log)"
 START=$(date +%s)
 if [ -n "$NP" ]; then
-  mpirun -np "$NP" "$EXE" > run.log 2>&1
+  mpirun -np "$NP" "$EXE" > run.log 2>&1 || STATUS=$?
 else
-  "$EXE" > run.log 2>&1
+  "$EXE" > run.log 2>&1 || STATUS=$?
+fi
+if [ -n "$STATUS" ]; then
+  echo "ALF.out stopped with an error (exit code $STATUS). From $(pwd)/run.log:"
+  { grep -i "error" run.log | grep -v -i "backtrace" || tail -5 run.log; } | head -5 | sed 's/^/  /'
+  exit 1
 fi
 echo "ALF finished in $(( $(date +%s) - START )) s"
 
 echo "Analysing ..."
 EQ=$(ls *_eq 2>/dev/null || true)
 TAU=$(ls *_tau 2>/dev/null || true)
-"$ANA" *_scal $EQ $TAU > ana.log 2>&1
+if ! "$ANA" *_scal $EQ $TAU > ana.log 2>&1 || [ ! -e Ener_scalJ ]; then
+  echo "ana.out failed (log: $(pwd)/ana.log). Usually too few bins: need NBin > n_skip + 1."
+  echo "Bins so far: $(wc -l < Ener_scal)"
+  exit 1
+fi
 
 # Short summary: scalar observables (mean, jackknife error) and average sign
 echo
@@ -80,6 +89,6 @@ for f in *_scalJ; do
         else if (n=="Ener" && !s) {printf "%-12s %16.8f %16.8f\n", "Avg. sign", $2, $3; s=1}
       }' "$f"
 done
-grep -E "Precision" info | sed 's/^ */  /'
+grep -E "Precision" info | tail -2 | sed 's/^ */  /'     # last run only
 echo
 echo "Correlations in momentum space: *_eqJK (and *_tauJK if Ltau = 1)"
