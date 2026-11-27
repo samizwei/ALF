@@ -35,19 +35,36 @@ LABELS = {"Ener": ["Ener"], "Kin": ["Kin"], "Pot": ["Pot"], "Part": ["Part"],
 
 # ----------------------------------------------------------------------------- reading
 def read_parameters(run):
-    """Return a dict of the namelist entries in RUN/parameters (lower-case keys)."""
-    par = {}
+    """Return the parameters used by this run as a dict (lower-case keys).
+
+    Only the namelists that ALF reads for this model are used (VAR_ham_name, VAR_lattice,
+    VAR_Model_Generic, VAR_<ham_name>, VAR_QMC, VAR_errors): a parameter file may contain
+    e.g. Beta in several model namelists.
+    """
+    nml, cur = {}, None
     with open(os.path.join(run, "parameters")) as f:
         for line in f:
-            line = line.split("!")[0]
-            m = re.match(r"\s*(\w+)\s*=\s*(\S+)", line)
-            if m:
-                val = m.group(2).strip('"\'')
-                try:
-                    val = float(val.replace("d", "e").replace("D", "e"))
-                except ValueError:
-                    pass
-                par[m.group(1).lower()] = val
+            line = line.split("!")[0].strip()
+            if line.startswith("&"):
+                cur = line[1:].split()[0].lower() if len(line) > 1 else None
+                nml[cur] = {}
+                continue
+            if line.startswith("/"):
+                cur = None
+                continue
+            m = re.match(r"(\w+)\s*=\s*(\S+)", line)
+            if cur is None or not m:
+                continue
+            val = m.group(2).rstrip(",").strip('"\'')
+            try:
+                val = float(val.replace("d", "e").replace("D", "e"))
+            except ValueError:
+                pass
+            nml[cur][m.group(1).lower()] = val
+    ham = str(nml.get("var_ham_name", {}).get("ham_name", "")).lower()
+    par = {}
+    for name in ("var_ham_name", "var_lattice", "var_model_generic", "var_" + ham, "var_qmc", "var_errors"):
+        par.update(nml.get(name, {}))
     return par
 
 

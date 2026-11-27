@@ -5,6 +5,7 @@ This repository (`github.com/samizwei/ALF`) is the standard ALF code
 Christensen *et al.*, PRL **125**, 247001 (2020), together with run and analysis scripts.
 
 **How to install, run and analyse:** see `ALF_SZ_Manual.pdf` in this folder (source: `ALF_SZ_Manual.tex`).
+**Data analysis in Python/pandas:** `alf_to_pandas.py`, explained in `ALF_pandas_guide.pdf`.
 
 ## The models
 
@@ -70,7 +71,9 @@ so use it for Ising production runs and `TwoBand_Spin` for XY and Heisenberg.
 |---|---|
 | `README.md` | this file |
 | `ALF_SZ_Manual.tex`, `ALF_SZ_Manual.pdf` | installation, running, data storage and analysis |
-| `figures/` | example plots used in the manual |
+| `alf_to_pandas.py` | loads ALF run directories into pandas DataFrames (scalars, correlations, raw bins, parameters) + jackknife for derived quantities |
+| `ALF_pandas_guide.tex`, `ALF_pandas_guide.pdf` | what the ALF output files contain and the structure of the DataFrames, with examples |
+| `figures/` | example plots used in the manual and the guide |
 
 ## Quick start
 
